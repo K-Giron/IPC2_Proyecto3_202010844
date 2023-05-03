@@ -1,0 +1,23 @@
+{% extends "base.html"%}
+
+
+
+
+{% block content %}
+    <h1>Servicios de archivos de carga</h1>
+    <ul>
+        <li></li>
+    </ul>
+    <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div>
+        <label for="archivo">Archivo:</label>
+        <input type="file" name="archivo" id="archivo" required>
+    </div>
+    <br>
+    <button type="submit">Enviar</button>
+    </form>
+    <div>
+    <p>{{ respuesta_servidor }}</p>
+    </div>
+{% endblock %}

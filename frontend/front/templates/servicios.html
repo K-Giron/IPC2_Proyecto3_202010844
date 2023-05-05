@@ -17,7 +17,12 @@
     <br>
     <button type="submit">Enviar</button>
     </form>
+    <h1>Respuesta del servidor</h1>
+    {% if xml_respuesta %}
+        <textarea rows="20" cols="50">{{ xml_respuesta }}</textarea>
+    {% endif %}
     <div>
-    <p>{{ respuesta_servidor }}</p>
+        <p>{{ respuesta_servidor }}</p>
     </div>
+    
 {% endblock %}

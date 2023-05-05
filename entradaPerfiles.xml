@@ -44,6 +44,9 @@
             <palabra>ropa deportiva</palabra>
             <palabra>bebida hidratante</palabra>
             <palabra>bebidas hidratantes</palabra>
+            <palabra>bebida energizante</palabra>
+            <palabra>bebida redbull</palabra>
+            
             </palabrasClave>
         </perfil>
     </perfiles>
@@ -75,5 +78,13 @@
         <palabra>sus</palabra>
         <palabra>am</palabra>
         <palabra>pm</palabra>
+        <palabra>hola</palabra>
+        <palabra>hoy</palabra>
+        <palabra>ayer</palabra>
+        <palabra>mañana</palabra>
+        <palabra>hace</palabra>
+        <palabra>hace</palabra>
+        <palabra>postilla</palabra>
+        
     </descartadas>
 </configuracion>

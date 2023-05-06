@@ -19,25 +19,45 @@ def servicios(request):
         archivo=request.FILES['archivo']
         headers = {"Content-Type": "application/xml"}
         response = requests.post('http://127.0.0.1:5000/cargarPerfiles', data=archivo.read(), headers=headers)
+        contadorMensaje=0
+        valorUsuarios=0
         if response.status_code==200:
             print("Correcto")
 
             respuesta = response.json()
-            
-            # Convertir respuesta JSON a XML
-            root = ET.Element("respuesta")
-            perfiles_nuevos = ET.SubElement(root, "perfilesNuevos")
-            perfiles_nuevos.text = str(respuesta["perfilesNuevos"])
-            perfiles_modificados = ET.SubElement(root, "perfilesModificados")
-            perfiles_modificados.text = str(respuesta["perfilesModificados"])
-            descartadas_agregadas = ET.SubElement(root, "descartadasAgregadas")
-            descartadas_agregadas.text = str(respuesta["descartadasAgregadas"])
+            try:
+                contadorMensaje=respuesta["contadorMensaje"]
+                valorUsuarios=respuesta["usuariosDistintos"]
+            except:
+                pass
 
-            xml_respuesta = ET.tostring(root, encoding="unicode")
-            return render(request, 'servicios.html', {'xml_respuesta': xml_respuesta})
+            print(contadorMensaje)
+            print(valorUsuarios)
+            if contadorMensaje !=0 or valorUsuarios !=0:
+                # Crear la estructura XML
+                root = ET.Element("respuesta")
+                usuarios = ET.SubElement(root, "usuarios")
+                usuarios.text = f"Se procesaron mensajes para {valorUsuarios} usuarios distintos"
+                mensajes = ET.SubElement(root, "mensajes")
+                mensajes.text = f"Se procesaron {contadorMensaje} mensajes en total"
+                respuesta_xml = ET.tostring(root, encoding="unicode")
+
+                return render(request, 'servicios.html',{'xml_respuesta': respuesta_xml})
+            else:
+                # Convertir respuesta JSON a XML
+                root = ET.Element("respuesta")
+                perfiles_nuevos = ET.SubElement(root, "perfilesNuevos")
+                perfiles_nuevos.text = str(respuesta["perfilesNuevos"])
+                perfiles_modificados = ET.SubElement(root, "perfilesModificados")
+                perfiles_modificados.text = str(respuesta["perfilesModificados"])
+                descartadas_agregadas = ET.SubElement(root, "descartadasAgregadas")
+                descartadas_agregadas.text = str(respuesta["descartadasAgregadas"])
+
+                xml_respuesta = ET.tostring(root, encoding="unicode")
+                return render(request, 'servicios.html', {'xml_respuesta': xml_respuesta})
         else:
             print("incorrecto")
-            return render(request, 'servicios.html',{'respuesta_servidor':'Incorrecto'}) 
+            return render(request, 'servicios.html',{'respuesta_servidor':'Incorrecto'})
     else:
         return render(request, 'servicios.html',{'respuesta_servidor':''})
 

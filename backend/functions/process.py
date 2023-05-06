@@ -2,6 +2,54 @@ import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import Element, SubElement, ElementTree
 
 
+def CargaMensajes(xml_string):
+
+    if xml_string:
+        doc=ET.fromstring(xml_string)
+        lugar=doc.find("lugar").text
+        fecha=doc.find("fecha").text
+        hora=doc.find("hora").text
+        usuario=doc.find("usuario").text
+        red_social=doc.find("redSocial").text
+        mensaje=doc.find("mensaje").text
+        palabras_clave=doc.find("palabrasClave").text.split()
+
+        root= ET.Element("mensajes")
+        mensaje_element = ET.Element('mensaje')
+        lugar_element = ET.SubElement(mensaje_element, 'lugar')
+        lugar_element.text = lugar
+        fecha_element = ET.SubElement(mensaje_element, 'fecha')
+        fecha_element.text = fecha
+        hora_element = ET.SubElement(mensaje_element, 'hora')
+        hora_element.text = hora
+        usuario_element = ET.SubElement(mensaje_element, 'usuario')
+        usuario_element.text = usuario
+        red_social_element = ET.SubElement(mensaje_element, 'redSocial')
+        red_social_element.text = red_social
+        mensaje_texto_element = ET.SubElement(mensaje_element, 'mensajeTexto')
+        mensaje_texto_element.text = mensaje
+        palabras_clave_element = ET.SubElement(mensaje_element, 'palabrasClave')
+        for palabra in palabras_clave:
+            palabra_element = ET.SubElement(palabras_clave_element, 'palabra')
+            palabra_element.text = palabra
+        
+        # Abrimos el archivo mensajes.xml en modo "append"
+        tree = ET.ElementTree()
+        try:
+            tree.parse('mensajes.xml') # Si el archivo ya existe, lo cargamos
+            root = tree.getroot()
+        except FileNotFoundError:
+            # Si el archivo no existe, creamos la raíz del árbol
+            root = ET.Element('mensajes')
+            tree._setroot(root)
+
+        # Añadimos el nuevo mensaje a la raíz
+        root.append(mensaje_element)
+
+        # Guardamos el archivo actualizado
+        tree.write('mensajes.xml', encoding='utf-8', xml_declaration=True)
+
+
 
 def EscribirBasePalabras(datos):
     # Cargamos el archivo XML actual

@@ -1,6 +1,6 @@
 from flask import Flask,request,jsonify
 from flask_debugtoolbar import DebugToolbarExtension
-from functions.process import xmlADiccionario,EscribirBasePalabras,unificarDiccionarios
+from functions.process import xmlADiccionario,EscribirBasePalabras,unificarDiccionarios,CargaMensajes
 import xml.etree.ElementTree as ET
 import os
 
@@ -32,6 +32,8 @@ def Cargar():
     if request.method=='POST':
         flag = False
         ruta_archivo = 'diccionario.xml'
+        contadorMensaje = 0
+        usuarios_distintos = set()
         if os.path.exists(ruta_archivo):
             tree = ET.parse(ruta_archivo)
             root = tree.getroot()
@@ -44,39 +46,37 @@ def Cargar():
 #------------------------------------------------------------------------------------esto sigue mal
             # Analizar el archivo XML de lista de mensajes
             root = ET.fromstring(request.data)
-            print(root)
+            
             for mensaje in root.findall('.//mensaje'):
-                print(mensaje.text)
-                # Obtener el texto completo de la etiqueta "Lugar y Fecha"
+
                 lugar_y_fecha = mensaje.text.split('\n')[1].strip()
-                
+    
                 # Dividir el texto en dos partes: lugar y fecha/hora
-                lugar, fecha_hora = lugar_y_fecha.split(': ')
+                fecha_hora = lugar_y_fecha.split(': ')[1]
+                lugar=fecha_hora.split(', ')[0]
+                fecha_hora=fecha_hora.split(', ')[1]
                 fecha, hora = fecha_hora.split(' ')
 
                 usuario = mensaje.text.split('\n')[2].strip().split(': ')[1]
                 red_social = mensaje.text.split('\n')[3].strip().split(': ')[1]
                 mensaje_texto = ' '.join(mensaje.text.split('\n')[4:]).strip()
                 palabras = mensaje_texto.split()
-
-                print('Lugar:', lugar)
-                print('Fecha:', fecha)
-                print('Hora:', hora)
-                print("Usuario: ", usuario)
-                print("Red social: ", red_social)
-                print("Mensaje: ", mensaje_texto)
-                print("Palabras: ", palabras)
+                xml= f"<mensaje><lugar>{lugar}</lugar><fecha>{fecha}</fecha><hora>{hora}</hora><usuario>{usuario}</usuario><redSocial>{red_social}</redSocial><mensaje>{mensaje_texto}</mensaje><palabrasClave>{palabras}</palabrasClave></mensaje>"
+                CargaMensajes(xml)
+                usuarios_distintos.add(usuario)
+                contadorMensaje += 1
                 flag = True
+            print(f"Se han cargado {contadorMensaje} mensajes de {len(usuarios_distintos)} usuarios distintos")
+            #if flag:
+            #    return jsonify({{contadorMensaje},{len(usuarios_distintos)}})
         else:
-            
             respuesta=EscribirBasePalabras(xmlADiccionario(request.data))
-            print(respuesta)
-        #if flag:
-            #return jsonify(respuesta)
-        return jsonify(respuesta)
-
-
-
+        
+        if flag:
+                valorUsuarios = len(usuarios_distintos)
+                return jsonify({"contadorMensaje": contadorMensaje, "usuariosDistintos": valorUsuarios})
+        else:
+            return jsonify(respuesta)
     else:
         return "Wrong response"
         

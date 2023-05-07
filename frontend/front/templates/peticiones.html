@@ -2,6 +2,39 @@
 
 {% block content %}
 <h1>Peticiones</h1>
-<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam, neque? Repellendus aperiam magnam fugiat veniam, numquam tenetur officiis, nesciunt veritatis, amet possimus repellat. Possimus sed sit ratione perferendis laboriosam, sapiente harum qui quam est vel. Deserunt vel non obcaecati maxime laboriosam cumque minima alias unde exercitationem facere et, aliquam sit enim eveniet iure at quas voluptates ab? Porro dolorem velit repudiandae odio unde tempore, praesentium blanditiis aspernatur placeat distinctio assumenda autem omnis saepe voluptatibus similique nihil, id iste deleniti ducimus quae. Nemo nisi, fugiat soluta at distinctio quam quod magni, dolore inventore beatae blanditiis totam eligendi placeat vero suscipit laborum?</p>
+
+<h2>Detalle de mensajes por usuario</h2>
+<form action="{% url 'detalle_mensajes' %}" method="POST">
+    {% csrf_token %}
+    <!-- Formulario para elegir la fecha y el usuario -->
+    <label for="fecha">Seleccione la primera fecha:</label>
+    <input type="date" id="fecha" name="fecha" value="{{ fecha|date:'d/m/Y' }}">
+    <br>
+    <label for="fecha2">Seleccione la segunda fecha:</label>
+    <input type="date" id="fecha2" name="fecha2" value="{{ fecha|date:'d/m/Y' }}">
+    <br>
+    <label for="usuario">Ingrese el nombre del usuario(Si deseas el resumen de todos, escribe TODOS)</label>
+    <input type="text", id="usuario" name="usuario">
+    <br>
+    <button type="submit">Generar informe</button>
+</form>
+
+<h2>Resumen de pesos por usuario</h2>
+<form action="{% url 'resumen_pesos' %}" method="POST">
+    {% csrf_token %}
+    <!-- Formulario para elegir el usuario -->
+    <label for="usuario">Ingrese el nombre del usuario(Si deseas el resumen de todos, escribe TODOS)</label>
+    <input type="text", id="usuario" name="usuario">
+    <br>
+    <button type="submit">Generar informe</button>
+</form>
+
+<h2>Prueba de solicitudes de creación de mensajes</h2>
+<form action="{% url 'prueba_solicitudes' %}" method="POST">
+    {% csrf_token %}
+    <!-- Formulario para enviar una solicitud con un mensaje -->
+    <button type="submit">Enviar solicitud</button>
+</form>
+{{informacion}}
 
 {% endblock %}

@@ -1,7 +1,9 @@
 from flask import Flask,request,jsonify
 from flask_debugtoolbar import DebugToolbarExtension
-from functions.process import xmlADiccionario,EscribirBasePalabras,unificarDiccionarios,CargaMensajes
+from functions.process import xmlADiccionario,EscribirBasePalabras,unificarDiccionarios,CargaMensajes,ProcessPesos
 import xml.etree.ElementTree as ET
+from flask import Response
+import re
 import os
 
 
@@ -60,8 +62,9 @@ def Cargar():
                 usuario = mensaje.text.split('\n')[2].strip().split(': ')[1]
                 red_social = mensaje.text.split('\n')[3].strip().split(': ')[1]
                 mensaje_texto = ' '.join(mensaje.text.split('\n')[4:]).strip()
-                palabras = mensaje_texto.split()
-                xml= f"<mensaje><lugar>{lugar}</lugar><fecha>{fecha}</fecha><hora>{hora}</hora><usuario>{usuario}</usuario><redSocial>{red_social}</redSocial><mensaje>{mensaje_texto}</mensaje><palabrasClave>{palabras}</palabrasClave></mensaje>"
+                mensaje_texto_nosignos=re.sub(r'[^\w\s]', '', mensaje_texto)
+                palabras = mensaje_texto_nosignos.lower().split()
+                xml= f"<mensaje><lugar>{lugar}</lugar><fecha>{fecha}</fecha><hora>{hora}</hora><usuario>{usuario}</usuario><redSocial>{red_social}</redSocial><mensaje>{mensaje_texto}</mensaje><palabrasClave>{' '.join(palabras)}</palabrasClave></mensaje>"
                 CargaMensajes(xml)
                 usuarios_distintos.add(usuario)
                 contadorMensaje += 1
@@ -77,6 +80,38 @@ def Cargar():
                 return jsonify({"contadorMensaje": contadorMensaje, "usuariosDistintos": valorUsuarios})
         else:
             return jsonify(respuesta)
+    else:
+        return "Wrong response"
+        
+
+@app.route("/consultarFecha",methods=["POST"])
+def consultarFecha():
+    if request.method=='POST':
+        fecha = request.get_json()
+        print(fecha)
+        return jsonify({"MSG":"Fecha consultada"})
+    else:
+        return "Wrong response"
+
+@app.route("/resetDatos",methods=["POST"])
+def reset():
+    if request.method=='POST':
+        #eliminando el archivo diccionario.xml
+        ruta_archivo = 'diccionario.xml'
+        if os.path.exists(ruta_archivo):
+            os.remove(ruta_archivo)
+        #eliminando el archivo mensajes.xml
+        ruta_archivo = 'mensajes.xml'
+        if os.path.exists(ruta_archivo):
+            os.remove(ruta_archivo)
+        return jsonify({"MSG":"Datos reseteados"})
+    else:
+        return "Wrong response"
+    
+@app.route("/consultarPesos",methods=["POST"])
+def consultarPesos():
+    if request.method=='POST':
+        return Response(ProcessPesos(request.data), status=201, mimetype='text/xml')
     else:
         return "Wrong response"
         

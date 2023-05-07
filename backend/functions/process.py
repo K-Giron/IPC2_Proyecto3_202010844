@@ -1,5 +1,8 @@
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import Element, SubElement, ElementTree
+from flask import request, jsonify
+from io import BytesIO
+import os
 
 
 def CargaMensajes(xml_string):
@@ -13,6 +16,19 @@ def CargaMensajes(xml_string):
         red_social=doc.find("redSocial").text
         mensaje=doc.find("mensaje").text
         palabras_clave=doc.find("palabrasClave").text.split()
+
+        #eliminar las palabras clave que estan en descartadas
+        try:
+            tree = ET.parse('diccionario.xml')
+            root = tree.getroot()
+        except FileNotFoundError:
+            root = ET.Element('perfiles')
+        for perfil in root.findall('perfil'):
+            if perfil.find('nombre').text == "descartadas":
+                palabras_descartadas = [p.text for p in perfil.findall('.//palabra')]
+                break
+        palabras_clave = [p for p in palabras_clave if p not in palabras_descartadas]
+
 
         root= ET.Element("mensajes")
         mensaje_element = ET.Element('mensaje')
@@ -131,6 +147,31 @@ def xmlADiccionario(xml_string):
 
     return result_dict
 
+def xmlADiccionarioMensajes(xml_string):
+    root = ET.fromstring(xml_string)
+    result_dict = {}
+    mensajes= root.findall('mensaje')
+    print(mensajes)
+    for i, mensaje in enumerate(mensajes):
+        lugar = mensaje.find('lugar').text
+        fecha = mensaje.find('fecha').text
+        hora = mensaje.find('hora').text
+        usuario = mensaje.find('usuario').text
+        red_social = mensaje.find('redSocial').text
+        mensaje_texto = mensaje.find('mensajeTexto').text
+        palabras_clave = [p.text for p in mensaje.findall('.//palabra')]
+        result_dict[f'mensaje_{i+1}'] = {
+            'lugar': lugar,
+            'fecha': fecha,
+            'hora': hora,
+            'usuario': usuario,
+            'redSocial': red_social,
+            'mensaje': mensaje_texto,
+            'palabrasClave': palabras_clave
+        }
+    
+    return result_dict
+
 
 def unificarDiccionarios(diccionario1, diccionario2):
     keys = set(diccionario1.keys()).union(set(diccionario2.keys()))
@@ -140,3 +181,6 @@ def unificarDiccionarios(diccionario1, diccionario2):
         valores2 = set(diccionario2.get(key, []))
         nuevo_diccionario[key] = list(valores1.union(valores2))
     return nuevo_diccionario
+
+def ProcessPesos(usuario):
+    pass

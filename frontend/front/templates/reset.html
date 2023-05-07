@@ -3,8 +3,11 @@
 {% block content%}
 
 <h1>Resetear base de datos</h1>
-
-<button>Reset</button>
+<form method="POST" action="{% url "reset" %}">
+    {% csrf_token %}
+    <button>Reset</button>
+</form>
+<p>{{respuesta}}</p>
 
 
 {% endblock %}
